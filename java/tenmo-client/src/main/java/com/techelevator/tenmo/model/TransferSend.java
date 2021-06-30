@@ -9,6 +9,18 @@ public class TransferSend {
     private int fromUserId;
     private BigDecimal amountToSend;
 
+    public TransferSend()
+    {
+
+    }
+
+    public TransferSend(int fromUserId, int toUserId, BigDecimal amountToSend)
+    {
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
+        this.amountToSend = amountToSend;
+    }
+
     public int getTransferId() {
         return transferId;
     }
