@@ -3,6 +3,7 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.NamedUserId;
 import com.techelevator.tenmo.model.TransferSend;
 import com.techelevator.view.ConsoleService;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -18,6 +19,7 @@ public class TransferSendService
 {
 
     private final String BASE_URL;
+    public static String AUTH_TOKEN = "";
     private final RestTemplate restTemplate = new RestTemplate();
     private final ConsoleService console = new ConsoleService(System.in, System.out);
 
@@ -32,13 +34,23 @@ public class TransferSendService
         HttpEntity<TransferSend> entity = new HttpEntity<>(transferSend,headers);
 
         try {
-            transferSend = restTemplate.postForObject(BASE_URL + "transfer",
-                    entity, TransferSend.class);
+            /*transferSend = restTemplate.postForObject(BASE_URL + "transfer",
+                    entity, TransferSend.class);*/
+            transferSend = restTemplate.exchange(BASE_URL + "transfer",
+                    HttpMethod.POST, makeAuthTransferSend(transferSend), TransferSend.class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());
         } catch (ResourceAccessException ex) {
             System.out.println(ex.getMessage());
         }
         return transferSend;
+    }
+
+    private HttpEntity<TransferSend> makeAuthTransferSend(TransferSend transferSend) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(AUTH_TOKEN);
+        HttpEntity<TransferSend> entity = new HttpEntity<>(transferSend, headers);
+        return entity;
     }
 }
