@@ -11,16 +11,11 @@ import javax.sql.DataSource;
 public class JdbcAuthenticatedAccountBalanceDao implements AuthenticatedAccountBalanceDao {
 
     private JdbcTemplate jdbcTemplate;
-    //private AuthenticatedAccountBalanceDao authenticatedAccountBalanceDao;
 
     public JdbcAuthenticatedAccountBalanceDao(JdbcTemplate jdbcTemplate) {
+
         this.jdbcTemplate = jdbcTemplate;
     }
-
-   /* public JdbcAuthenticatedAccountBalanceDao(AuthenticatedAccountBalanceDao authenticatedAccountBalanceDao) {
-        this.authenticatedAccountBalanceDao = authenticatedAccountBalanceDao;
-       // this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }*/
 
     @Override
     public AuthenticatedAccountBalance getAuthenticatedAccountBalance(int userId) {
