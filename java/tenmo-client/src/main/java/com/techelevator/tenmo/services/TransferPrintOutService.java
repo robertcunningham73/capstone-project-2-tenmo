@@ -20,11 +20,11 @@ public class TransferPrintOutService {
         BASE_URL = url;
     }
 
-    public TransferPrintOut[] getTransferPrintOutArray() {
+    public TransferPrintOut[] getTransferPrintOutArray(int userId) {
         TransferPrintOut[] transferPrintOuts = null;
         try {
 //            transferPrintOuts = restTemplate.getForObject(BASE_URL + "gettransfers", TransferPrintOut[].class);
-            transferPrintOuts = restTemplate.exchange(BASE_URL + "gettransfers",
+            transferPrintOuts = restTemplate.exchange(BASE_URL + "gettransfers/" + userId,
                     HttpMethod.GET, makeAuthEntity(), TransferPrintOut[].class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());

@@ -20,8 +20,8 @@ public class NamedUserIdController
     }
 
     /*
-     * Return a specific balance
-     * @return userId and userName for a specific authenticated user
+     * Return a list of users with their ids
+     * @return a list of users
      */
     @RequestMapping(path="listusers", method = RequestMethod.GET)
     public List<NamedUserId> get() {
