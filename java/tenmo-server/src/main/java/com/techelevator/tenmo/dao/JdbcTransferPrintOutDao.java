@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.SQLFunctions;
 import com.techelevator.tenmo.model.TransferPrintOut;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -21,34 +22,19 @@ public class JdbcTransferPrintOutDao implements TransferPrintOutDao {
         List<TransferPrintOut> transferPrintOutList = new ArrayList<>();
         TransferPrintOut transferPrintOutToAdd;
 
-        String sql = "BEGIN TRANSACTION; " +
-                "DROP FUNCTION IF EXISTS whoseAccount; " +
-                "DROP FUNCTION IF EXISTS getUsersAccount; " +
-
-                "CREATE FUNCTION whoseAccount(integer) RETURNS varchar(50) " +
-                "AS  'SELECT u.username FROM users u JOIN accounts a " +
-                "ON u.user_id = a.user_id WHERE a.account_id=$1;' " +
-                "LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT; " +
-
-                "CREATE FUNCTION getUsersAccount(integer) RETURNS integer " +
-                "AS 'SELECT account_id FROM accounts WHERE user_id=$1;' " +
-                "LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT; " +
-
-                "SELECT 500 as id_of_transfer, 'From' AS from_to, 'Joe' as person, 500 as amount_of_transfer;"
-        + " COMMIT TRANSACTION; ";
-                /*
+        jdbcTemplate.execute(SQLFunctions.createGetUsersAccountIdFunction); // pg_temp scope, temporary
+        jdbcTemplate.execute(SQLFunctions.createWhoseAccountFunction);
+        String sqlGetTransferInfo =
                 "SELECT tf.transfer_id as id_of_transfer, 'From:' AS from_to, " +
                 "whoseAccount(tf.account_from) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
-                "WHERE tf.account_to=getUsersAccount(?) " +
+                "WHERE tf.account_to=pg_temp.getUsersAccount(?) " +
 
                 "UNION " +
 
                 "SELECT tf.transfer_id as id_of_transfer, 'To:' AS from_to, " +
                 "whoseAccount(tf.account_to) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
-                "WHERE tf.account_from=getUsersAccount(?); " +
-
-                "COMMIT TRANSACTION;"; */
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql); //, id, id);
+                "WHERE tf.account_from=pg_temp.getUsersAccount(?) ORDER BY id_of_transfer ASC; ";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sqlGetTransferInfo,id,id); //, id, id);
         while (results.next()) {
             transferPrintOutToAdd = mapRowToTransferPrintOut(results);
             transferPrintOutList.add(transferPrintOutToAdd);
