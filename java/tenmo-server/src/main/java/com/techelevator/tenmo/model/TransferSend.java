@@ -1,12 +1,17 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.*;
+
 
 public class TransferSend {
 
     private int transferId;
+    @NotNull( message = "toUserId is required")
     private int toUserId;
+    @NotNull( message = "fromUserId is required")
     private int fromUserId;
+    @Positive( message = "amount to send must be greater than 0")
     private BigDecimal amountToSend;
 
     public TransferSend()

@@ -19,4 +19,11 @@ public class SQLFunctions
             "CREATE FUNCTION pg_temp.getUsersAccount(integer) RETURNS integer " +
                     "AS 'SELECT account_id FROM accounts WHERE user_id=$1;' " +
                     "LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT; ";
+
+    public static final String createGetBalanceGivenUserId =
+            "DROP FUNCTION IF EXISTS pg_temp.getBalanceGivenUserId; " +
+             "CREATE FUNCTION pg_temp.getBalanceGivenUserId(integer) RETURNS numeric " +
+        "AS 'SELECT a.balance AS user_balance FROM accounts a JOIN users u ON " +
+        "a.user_id = u.user_id WHERE u.user_id = $1;' " +
+            "LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT; ";
 }

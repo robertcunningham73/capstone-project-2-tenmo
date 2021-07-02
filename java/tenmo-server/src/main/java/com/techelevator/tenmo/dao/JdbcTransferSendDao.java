@@ -7,11 +7,13 @@ import com.techelevator.tenmo.model.TransferSend;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.JdbcTransactionObjectSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.LocalDate;
 
 @Component
@@ -23,8 +25,11 @@ public class JdbcTransferSendDao implements TransferSendDao {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     @Transactional(rollbackFor = StandardTenmoException.class)
-    public TransferSend sendTransferSend(TransferSend sendThisTransfer) throws StandardTenmoException {
+    public TransferSend sendTransferSend(TransferSend sendThisTransfer, Principal principal)
+            throws StandardTenmoException {
+
         /* First, check the sender's balance */
         BigDecimal proposedAmountToSend = sendThisTransfer.getAmountToSend();
         int senderId = sendThisTransfer.getFromUserId();
@@ -32,7 +37,7 @@ public class JdbcTransferSendDao implements TransferSendDao {
         AuthenticatedAccountBalanceDao authBalanceDao =
                 new JdbcAuthenticatedAccountBalanceDao(jdbcTemplate);
         BigDecimal sendersBalance =
-                authBalanceDao.getAuthenticatedAccountBalance(senderId).getBalance();
+                authBalanceDao.getAuthenticatedAccountBalance(principal).getBalance();
                     // ^^^^ sender's balance
 
         if (sendersBalance.compareTo(proposedAmountToSend) < 0)
@@ -42,9 +47,21 @@ public class JdbcTransferSendDao implements TransferSendDao {
 
         /* We have enough money to send. Now, we need the new balances. */
         int recipientId = sendThisTransfer.getToUserId();
-        BigDecimal recipientBalance =
-                authBalanceDao.getAuthenticatedAccountBalance(recipientId).getBalance();
+
+   //     BigDecimal recipientBalance =
+   //             authBalanceDao.getAuthenticatedAccountBalance(recipientId).getBalance();
         // ^^^^ recipient's balance
+
+        jdbcTemplate.execute(SQLFunctions.createGetBalanceGivenUserId);
+        String recipientsBalanceSql = "SELECT pg_temp.getBalanceGivenUserId(?) AS recipient_balance;";
+        SqlRowSet recipientsBalanceRowSet =
+                jdbcTemplate.queryForRowSet(recipientsBalanceSql, recipientId);
+        BigDecimal recipientBalance = null;
+        if (recipientsBalanceRowSet.next()) {
+            recipientBalance = recipientsBalanceRowSet.getBigDecimal("recipient_balance");
+        }
+        if (recipientBalance==null) { throw new StandardTenmoException();}
+
 
         BigDecimal newRecipientBalance = recipientBalance.add(proposedAmountToSend);
         BigDecimal newSenderBalance = sendersBalance.subtract(proposedAmountToSend);
@@ -104,7 +121,7 @@ public class JdbcTransferSendDao implements TransferSendDao {
 
         /////////////////////////////////////////////////////////////
         try {
-            String addTransferSql = "INSERT INTO transfers (transfer_type_id, " +
+/*            String addTransferSql = "INSERT INTO transfers (transfer_type_id, " +
                     "transfer_status_id, account_from, account_to, amount) " +
                     "VALUES (?,?,?,?,?);";
             int transferRowUpdated = jdbcTemplate.update(addTransferSql, transferTypeCode, approvedStatusCode,
@@ -112,7 +129,19 @@ public class JdbcTransferSendDao implements TransferSendDao {
             if (transferRowUpdated != 1) {
                 System.out.println("transferRowUpdated " + transferRowUpdated);
                 throw new StandardTenmoException();
+            }*/
+            String addTransferSql = "INSERT INTO transfers (transfer_type_id, " +
+                    "transfer_status_id, account_from, account_to, amount) " +
+                    "VALUES (?,?,?,?,?) RETURNING transfer_id;";
+            Integer newTransferId = -1;
+            newTransferId = jdbcTemplate.queryForObject(addTransferSql,
+                    Integer.class, transferTypeCode, approvedStatusCode,
+                    accountFromId, accountToId, proposedAmountToSend);
+            if (newTransferId == -1) {
+                throw new StandardTenmoException();
             }
+            sendThisTransfer.setTransferId(newTransferId);
+
 
             String updateAccountBalanceSql = "UPDATE accounts SET balance = " +
                     "CASE WHEN user_id = ? THEN ?" + //recipientId, newRecipientBalance

@@ -8,6 +8,7 @@ import com.techelevator.tenmo.model.TransferSend;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 public class TransferSendController {
@@ -18,9 +19,9 @@ public class TransferSendController {
     }
 
     @RequestMapping(path="transfer", method = RequestMethod.POST)
-    public TransferSend post(@Valid @RequestBody TransferSend transferSend) throws StandardTenmoException {
+    public TransferSend post(@Valid @RequestBody TransferSend transferSend, Principal principal) throws StandardTenmoException {
         try {
-            return transferSendDao.sendTransferSend(transferSend);
+            return transferSendDao.sendTransferSend(transferSend, principal);
         } catch (Exception ex) {
             throw new StandardTenmoException();
         }
