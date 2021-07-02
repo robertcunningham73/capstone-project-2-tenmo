@@ -11,6 +11,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+
 public class AuthenticatedAccountBalanceService {
 
     private final String BASE_URL;
@@ -29,10 +30,11 @@ public class AuthenticatedAccountBalanceService {
         try {
             /*userBalance = restTemplate.getForObject(BASE_URL + "userbalance/" +
                     user.getId(), AuthenticatedAccountBalance.class);*/
-            userBalance = restTemplate.exchange(BASE_URL + "userbalance/" +
-                    user.getId(), HttpMethod.GET, makeAuthEntity(), AuthenticatedAccountBalance.class).getBody();
+            userBalance = restTemplate.exchange(BASE_URL + "getbalance",
+                    HttpMethod.GET, makeAuthEntity(), AuthenticatedAccountBalance.class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());
+            System.out.println(ex.getLocalizedMessage() + ex.getResponseBodyAsString());
         } catch (ResourceAccessException ex) {
             System.out.println(ex.getMessage());
         }
@@ -44,5 +46,10 @@ public class AuthenticatedAccountBalanceService {
         headers.setBearerAuth(AUTH_TOKEN);
         HttpEntity entity = new HttpEntity<>(headers);
         return entity;
+    }
+
+    public void displayBalance(AuthenticatedUser currentUser)
+    {
+        System.out.println(getBalance(currentUser));
     }
 }
