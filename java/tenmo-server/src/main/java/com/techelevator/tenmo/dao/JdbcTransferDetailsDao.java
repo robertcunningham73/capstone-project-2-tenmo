@@ -1,10 +1,12 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.SQLFunctions;
+import com.techelevator.tenmo.exception.StandardTenmoException;
 import com.techelevator.tenmo.model.NamedUserId;
 import com.techelevator.tenmo.model.TransferDetails;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,25 +18,28 @@ public class JdbcTransferDetailsDao implements TransferDetailsDao {
     }
 
     @Override
-    public TransferDetails getTransferDetails(int transferId) {
-        TransferDetails transferDetails = new TransferDetails();
-        jdbcTemplate.execute(SQLFunctions.createWhoseAccountFunction);
-        String sql = "SELECT tf.transfer_id as id_of_transfer, " +
-                "whoseAccount(tf.account_from) as from_account, " +
-                "whoseAccount(tf.account_to) AS to_account, " +
-                "tt.transfer_type_desc AS type_description, " +
-                "ts.transfer_status_desc AS status_description, " +
-                "tf.amount AS transfer_amount " +
-                "FROM transfers tf " +
-                "JOIN transfer_types tt " +
-                "ON tf.transfer_type_id = tt.transfer_type_id " +
-                "JOIN transfer_statuses ts ON tf.transfer_status_id = ts.transfer_status_id " +
-                "WHERE tf.transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-        if (results.next()) {
-            transferDetails = mapRowToTransferDetails(results);
-        }
-        return transferDetails;
+    @PreAuthorize("isAuthenticated()")
+    public TransferDetails getTransferDetails(int transferId) throws StandardTenmoException {
+        try {
+            TransferDetails transferDetails = new TransferDetails();
+            jdbcTemplate.execute(SQLFunctions.createWhoseAccountFunction);
+            String sql = "SELECT tf.transfer_id as id_of_transfer, " +
+                    "whoseAccount(tf.account_from) as from_account, " +
+                    "whoseAccount(tf.account_to) AS to_account, " +
+                    "tt.transfer_type_desc AS type_description, " +
+                    "ts.transfer_status_desc AS status_description, " +
+                    "tf.amount AS transfer_amount " +
+                    "FROM transfers tf " +
+                    "JOIN transfer_types tt " +
+                    "ON tf.transfer_type_id = tt.transfer_type_id " +
+                    "JOIN transfer_statuses ts ON tf.transfer_status_id = ts.transfer_status_id " +
+                    "WHERE tf.transfer_id = ?;";
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+            if (results.next()) {
+                transferDetails = mapRowToTransferDetails(results);
+            }
+            return transferDetails;
+        } catch (Exception ex) { throw new StandardTenmoException(); }
     }
 
     private TransferDetails mapRowToTransferDetails(SqlRowSet rowSet)

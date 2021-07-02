@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.TransferPrintOutDao;
+import com.techelevator.tenmo.exception.StandardTenmoException;
 import com.techelevator.tenmo.model.TransferPrintOut;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,9 @@ public class TransferPrintOutController {
     * @return a list of transfer printouts
     */
     @RequestMapping(path="gettransfers/{id}", method = RequestMethod.GET)
-    public List<TransferPrintOut> get(@PathVariable int id) {
-        return transferPrintOutDao.getAllTransferPrintouts(id);
+    public List<TransferPrintOut> get(@PathVariable int id) throws StandardTenmoException {
+        try {
+            return transferPrintOutDao.getAllTransferPrintouts(id);
+        } catch (Exception ex) { throw new StandardTenmoException(); }
     }
 }

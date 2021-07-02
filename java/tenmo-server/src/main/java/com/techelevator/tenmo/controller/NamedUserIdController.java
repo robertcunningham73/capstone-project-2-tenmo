@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.NamedUserIdDao;
+import com.techelevator.tenmo.exception.StandardTenmoException;
 import com.techelevator.tenmo.model.NamedUserId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class NamedUserIdController
      * @return a list of users
      */
     @RequestMapping(path="listusers", method = RequestMethod.GET)
-    public List<NamedUserId> get() {
+    public List<NamedUserId> get() throws StandardTenmoException {
         return namedUserIdDao.getAllUsers();
     }
 }
