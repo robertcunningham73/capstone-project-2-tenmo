@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class TransferSend {
 
-    private int transferId;
+    private int transferId = -1;
     private int toUserId;
     private int fromUserId;
     private BigDecimal amountToSend;

@@ -2,11 +2,13 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedAccountBalance;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.TransferSend;
 import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AuthenticatedAccountBalanceService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.AuthenticationServiceException;
+import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
+import org.apiguardian.api.API;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -19,8 +21,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private static final String MAIN_MENU_OPTION_VIEW_BALANCE = "View your current balance";
 	private static final String MAIN_MENU_OPTION_SEND_BUCKS = "Send TE bucks";
 	private static final String MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS = "View your past transfers";
-	private static final String MAIN_MENU_OPTION_REQUEST_BUCKS = "Request TE bucks";
-	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "View your pending requests";
+	private static final String MAIN_MENU_OPTION_REQUEST_BUCKS = "(Not implemented) Request TE bucks";
+	private static final String MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS = "(Not implemented) View your pending requests";
 	private static final String MAIN_MENU_OPTION_LOGIN = "Login as different user";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_VIEW_BALANCE, MAIN_MENU_OPTION_SEND_BUCKS, MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS, MAIN_MENU_OPTION_REQUEST_BUCKS, MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 	
@@ -59,11 +61,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			} else if(MAIN_MENU_OPTION_VIEW_PAST_TRANSFERS.equals(choice)) {
 				viewTransferHistory();
 			} else if(MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS.equals(choice)) {
-				viewPendingRequests();
+				System.out.println("Sorry, this feature is not implemented.");
 			} else if(MAIN_MENU_OPTION_SEND_BUCKS.equals(choice)) {
 				sendBucks();
 			} else if(MAIN_MENU_OPTION_REQUEST_BUCKS.equals(choice)) {
-				requestBucks();
+				System.out.println("Sorry, this feature is not implemented.");
 			} else if(MAIN_MENU_OPTION_LOGIN.equals(choice)) {
 				login();
 			} else {
@@ -74,13 +76,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
 		try {
 			AuthenticatedAccountBalanceService balanceService =
 					new AuthenticatedAccountBalanceService(API_BASE_URL);
 			balanceService.AUTH_TOKEN = AUTH_TOKEN;
 			balanceService.displayBalance(currentUser);
-
 		} catch (Exception e) {
 			System.out.println("Something went wrong. Sorry.");
 		}
@@ -89,24 +89,62 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		// Use case 5 and use case 6
 		
 	}
 
-	private void viewPendingRequests() {
+	/*private void viewPendingRequests() {
+		// Optional
 		// TODO Auto-generated method stub
 		
-	}
+	}*/
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+		// Use case 4
+		// First display named user ids to allow picking of id to send to
+		// Then build a transfer send and send it to the server
+		NamedUserIdService nameService = new NamedUserIdService(API_BASE_URL);
+		nameService.AUTH_TOKEN = AUTH_TOKEN;
+		nameService.printUserIds();
+
+		System.out.println(System.lineSeparator());
+
+		int toUser = console.getUserInputInteger("Enter ID of user you are sending to. (0 to cancel.)");
+
+		String transferAmountString = console.getUserInput("Enter amount");
+		BigDecimal transferAmount = null;
+		try {
+			transferAmount = new BigDecimal(transferAmountString);
+		} catch (Exception ex) {
+			System.out.println("Bad input.");
+			return;
+		}
+
+		int fromUser = currentUser.getUser().getId();
+
+		TransferSendService transferService = new TransferSendService(API_BASE_URL);
+		transferService.AUTH_TOKEN = AUTH_TOKEN;
+		TransferSend successfulTransfer = new TransferSend();
+
+		try {
+			successfulTransfer = transferService.addTransfer(fromUser, toUser, transferAmount);
+		} catch (Exception ex) {
+			System.out.println("Something went wrong.");
+			return;
+		}
+		if ((successfulTransfer == null) ||(successfulTransfer.getTransferId() == -1)) {
+			System.out.println("Something went wrong.");
+			return;
+		}
+		System.out.println("Congratulations! You have just sent transfer: " + successfulTransfer.getTransferId());
 	}
 
-	private void requestBucks() {
+
+	/*private void requestBucks() {
+		// Optional
 		// TODO Auto-generated method stub
 		
-	}
+	}*/
 	
 	private void exitProgram() {
 		System.exit(0);

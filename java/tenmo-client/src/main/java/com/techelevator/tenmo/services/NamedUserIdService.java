@@ -35,6 +35,27 @@ public class NamedUserIdService {
         return namedUserIds;
     }
 
+    public void printUserIds() {
+        printDashes();
+        printSpacedOutStrings("User's ID", "User's Name");
+        printDashes();
+        NamedUserId[] namedUserIds = getNamedUserIdArray();
+        for (NamedUserId namedUserId : namedUserIds) {
+            printSpacedOutStrings(String.valueOf(namedUserId.getUserId()), namedUserId.getUserName());
+        }
+    }
+
+    private void printDashes() {
+        String dashes = "-----------------------------------------";
+        System.out.println(dashes);
+    }
+
+    private void printSpacedOutStrings(String a, String b) {
+        String formatter = "%-20s%-20s";
+        String printString = String.format(formatter, a, b);
+        System.out.println(printString);
+    }
+
     private HttpEntity makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(AUTH_TOKEN);
