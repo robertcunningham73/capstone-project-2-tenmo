@@ -1,9 +1,6 @@
 package com.techelevator.tenmo.services;
 
-import com.techelevator.tenmo.model.AuthenticatedAccountBalance;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.TransferDetails;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.view.ConsoleService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,8 +23,6 @@ public class TransferDetailsService {
     public TransferDetails getTransferDetails(int transferId) {
         TransferDetails transferDetails = null;
         try {
-            /*transferDetails = restTemplate.getForObject(BASE_URL + "transfers/" +
-                    transferId, TransferDetails.class);*/
             transferDetails = restTemplate.exchange(BASE_URL + "transfers/" +
                     transferId, HttpMethod.GET, makeAuthEntity(), TransferDetails.class).getBody();
         } catch (RestClientResponseException ex) {
@@ -37,6 +32,39 @@ public class TransferDetailsService {
         }
         return transferDetails;
     }
+
+
+    public void printTransferDetails(int transferId) {
+        printDashes();
+        System.out.println("Transfer Details");
+        printDashes();
+        TransferDetails transferDetails = getTransferDetails(transferId);
+
+        if (transferDetails.getTransferId()==0) {
+            System.out.println("Sorry, error, transfer not available.");
+            return;
+        }
+
+        printSpacedOutStrings("Id",String.valueOf(transferDetails.getTransferId()));
+        printSpacedOutStrings("From",transferDetails.getFromUserName());
+        printSpacedOutStrings("To",transferDetails.getToUserName());
+        printSpacedOutStrings("Type",transferDetails.getTransferType());
+        printSpacedOutStrings("Status", transferDetails.getTransferStatus());
+        printSpacedOutStrings("Amount","$" + transferDetails.getTransferAmount().toString());
+    }
+
+    private void printDashes() {
+        String dashes = "------------------------";
+        System.out.println(dashes);
+    }
+
+    private void printSpacedOutStrings(String a, String b) {
+        a = a + ":";
+        String formatter = "%-10s%10s";
+        String printString = String.format(formatter, a, b);
+        System.out.println(printString);
+    }
+
 
     private HttpEntity makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();

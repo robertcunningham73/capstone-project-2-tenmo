@@ -1,9 +1,6 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedAccountBalance;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.TransferSend;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
 import org.apiguardian.api.API;
@@ -89,8 +86,34 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// Use case 5 and use case 6
-		
+		TransferPrintOutService transferPrintOutService = new TransferPrintOutService(API_BASE_URL);
+		transferPrintOutService.AUTH_TOKEN = AUTH_TOKEN;
+		int userId = currentUser.getUser().getId();
+
+		int status = transferPrintOutService.printTransferPrintOuts(userId);
+		if (status == -1) {
+			return;
+		}
+
+		int transferId = console.getUserInputInteger("Enter transfer ID to view details (0 to cancel.)");
+		if (transferId==0) { return; }
+		if (transferId < 0) {
+			System.out.println("Error in input.");
+			return;}
+
+		TransferDetailsService detailsService =
+				new TransferDetailsService(API_BASE_URL);
+
+		detailsService.AUTH_TOKEN=AUTH_TOKEN;
+
+		try {
+			detailsService.printTransferDetails(transferId);
+		} catch (Exception ex)
+		{
+			System.out.println("Sorry, something bad happened.");
+			return;
+		}
+
 	}
 
 	/*private void viewPendingRequests() {
@@ -110,6 +133,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println(System.lineSeparator());
 
 		int toUser = console.getUserInputInteger("Enter ID of user you are sending to. (0 to cancel.)");
+
+		if (toUser==0) { return; }
 
 		String transferAmountString = console.getUserInput("Enter amount");
 		BigDecimal transferAmount = null;

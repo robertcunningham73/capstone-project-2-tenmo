@@ -39,7 +39,8 @@ public class TransferSendService
             transferSend = restTemplate.exchange(BASE_URL + "transfer",
                     HttpMethod.POST, makeAuthTransferSend(transferSend), TransferSend.class).getBody();
         } catch (RestClientResponseException ex) {
-            System.out.println(ex.getRawStatusCode() + " : " + ex.getStatusText());
+            System.out.println("Error " + ex.getRawStatusCode());
+            return null;
         } catch (ResourceAccessException ex) {
             System.out.println(ex.getMessage());
         }

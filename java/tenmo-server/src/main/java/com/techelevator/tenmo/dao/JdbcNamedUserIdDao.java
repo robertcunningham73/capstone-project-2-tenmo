@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +22,14 @@ public class JdbcNamedUserIdDao implements NamedUserIdDao {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public List<NamedUserId> getAllUsers() throws StandardTenmoException {
+    public List<NamedUserId> getAllUsers(Principal principal) throws StandardTenmoException {
         try {
             List<NamedUserId> userIdList = new ArrayList<>();
             NamedUserId namedUserToAdd;
 
-            String sql = "SELECT user_id, username FROM users ORDER BY username ASC;";
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+            String sql = "SELECT user_id, username FROM users " +
+                    "WHERE username != ? ORDER BY username ASC;";
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql,principal.getName());
             while (results.next()) {
                 namedUserToAdd = mapRowToNamedUserId(results);
                 userIdList.add(namedUserToAdd);

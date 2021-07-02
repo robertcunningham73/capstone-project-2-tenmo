@@ -23,7 +23,6 @@ public class JdbcAuthenticatedAccountBalanceDao implements AuthenticatedAccountB
     @Override
     @PreAuthorize("isAuthenticated()")
     public AuthenticatedAccountBalance getAuthenticatedAccountBalance(Principal principal) throws StandardTenmoException {
-        System.out.println("In the getAuthenticatedAccountBalanceMethod...");
         try {
             AuthenticatedAccountBalance authenticatedAccountBalance = null;
             String sql = "SELECT a.balance AS user_balance FROM accounts a JOIN users u ON " +

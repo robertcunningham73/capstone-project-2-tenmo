@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,7 @@ public class NamedUserIdController
      * @return a list of users
      */
     @RequestMapping(path="listusers", method = RequestMethod.GET)
-    public List<NamedUserId> get() throws StandardTenmoException {
-        return namedUserIdDao.getAllUsers();
+    public List<NamedUserId> get(Principal principal) throws StandardTenmoException {
+        return namedUserIdDao.getAllUsers(principal);
     }
 }

@@ -42,7 +42,7 @@ public class JdbcTransferSendDao implements TransferSendDao {
 
         if (sendersBalance.compareTo(proposedAmountToSend) < 0)
         {
-            throw new StandardTenmoException();
+            throw new StandardTenmoException("You don't have enough money.");
         }
 
         /* We have enough money to send. Now, we need the new balances. */
