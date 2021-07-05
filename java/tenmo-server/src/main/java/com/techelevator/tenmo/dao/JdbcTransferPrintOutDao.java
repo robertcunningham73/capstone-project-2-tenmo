@@ -30,13 +30,13 @@ public class JdbcTransferPrintOutDao implements TransferPrintOutDao {
             jdbcTemplate.execute(SQLFunctions.createWhoseAccountFunction);
             String sqlGetTransferInfo =
                     "SELECT tf.transfer_id as id_of_transfer, 'From:' AS from_to, " +
-                            "whoseAccount(tf.account_from) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
+                            "pg_temp.whoseAccount(tf.account_from) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
                             "WHERE tf.account_to=pg_temp.getUsersAccount(?) " +
 
                             "UNION " +
 
                             "SELECT tf.transfer_id as id_of_transfer, 'To:' AS from_to, " +
-                            "whoseAccount(tf.account_to) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
+                            "pg_temp.whoseAccount(tf.account_to) AS person, tf.amount AS amount_of_transfer FROM transfers tf " +
                             "WHERE tf.account_from=pg_temp.getUsersAccount(?) ORDER BY id_of_transfer ASC; ";
             SqlRowSet results = jdbcTemplate.queryForRowSet(sqlGetTransferInfo, id, id); //, id, id);
             while (results.next()) {

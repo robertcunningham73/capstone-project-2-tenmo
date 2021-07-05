@@ -24,8 +24,8 @@ public class JdbcTransferDetailsDao implements TransferDetailsDao {
             TransferDetails transferDetails = new TransferDetails();
             jdbcTemplate.execute(SQLFunctions.createWhoseAccountFunction);
             String sql = "SELECT tf.transfer_id as id_of_transfer, " +
-                    "whoseAccount(tf.account_from) as from_account, " +
-                    "whoseAccount(tf.account_to) AS to_account, " +
+                    "pg_temp.whoseAccount(tf.account_from) as from_account, " +
+                    "pg_temp.whoseAccount(tf.account_to) AS to_account, " +
                     "tt.transfer_type_desc AS type_description, " +
                     "ts.transfer_status_desc AS status_description, " +
                     "tf.amount AS transfer_amount " +

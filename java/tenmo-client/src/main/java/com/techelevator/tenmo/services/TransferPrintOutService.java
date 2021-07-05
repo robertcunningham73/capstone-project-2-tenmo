@@ -38,7 +38,7 @@ public class TransferPrintOutService {
 
     public int printTransferPrintOuts(int userId) {
         TransferPrintOut[] transferPrintOuts = getTransferPrintOutArray(userId);
-        if (transferPrintOuts.length==0) {
+        if (transferPrintOuts == null || transferPrintOuts.length==0) {
             System.out.println("Sorry, no transfers.");
             return -1;
         }

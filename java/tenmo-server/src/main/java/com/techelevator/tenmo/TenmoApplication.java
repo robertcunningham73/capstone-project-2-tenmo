@@ -11,12 +11,3 @@ public class TenmoApplication {
     }
 
 }
-
-/* TODO
-* Add authentication to the server
-* Add exception catching to the server methods
-* Add data validation besides post method
-* Consider unit testing for the server
-* Consider integration testing for the server
-* Wire up the CLI
-* Consume alcoholic beverages */
