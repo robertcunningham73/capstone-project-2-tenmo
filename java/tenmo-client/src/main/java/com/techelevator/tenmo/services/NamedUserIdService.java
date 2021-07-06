@@ -35,14 +35,19 @@ public class NamedUserIdService {
         return namedUserIds;
     }
 
-    public void printUserIds() {
+    public int printUserIds() {
+        NamedUserId[] namedUserIds = getNamedUserIdArray();
+        if (namedUserIds == null || namedUserIds.length == 0) {
+            return -1;
+        }
         printDashes();
         printSpacedOutStrings("User's ID", "User's Name");
         printDashes();
-        NamedUserId[] namedUserIds = getNamedUserIdArray();
+
         for (NamedUserId namedUserId : namedUserIds) {
             printSpacedOutStrings(String.valueOf(namedUserId.getUserId()), namedUserId.getUserName());
         }
+        return namedUserIds.length;
     }
 
     private void printDashes() {

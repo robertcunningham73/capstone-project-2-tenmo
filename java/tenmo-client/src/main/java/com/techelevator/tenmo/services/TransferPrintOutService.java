@@ -56,12 +56,12 @@ public class TransferPrintOutService {
     }
 
     private void printDashes() {
-        String dashes = "---------------------------------------------------";
+        String dashes = "------------------------------------------------------------";
         System.out.println(dashes);
     }
 
     private void printSpacedOutStrings(String a, String b, String c, String d) {
-        String formatter = "%-20s%-5s%-10s%-10s";
+        String formatter = "%-20s%-6s%-25s%-10s";
         String printString = String.format(formatter, a, b, c, d);
         System.out.println(printString);
     }

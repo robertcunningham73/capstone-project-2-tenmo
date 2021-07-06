@@ -126,9 +126,14 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// Use case 4
 		// First display named user ids to allow picking of id to send to
 		// Then build a transfer send and send it to the server
+		int numberUsers = -1;
 		NamedUserIdService nameService = new NamedUserIdService(API_BASE_URL);
 		nameService.AUTH_TOKEN = AUTH_TOKEN;
-		nameService.printUserIds();
+		numberUsers = nameService.printUserIds();
+		if (numberUsers == -1 || numberUsers == 0) {
+			System.out.println("No other users.");
+			return;
+		}
 
 		System.out.println(System.lineSeparator());
 
